@@ -1,5 +1,7 @@
 #!/usr/bin/python
 
+# AirWatch API InstallApplication
+
 # python ./aw_api_installapplication.py \
 # --authorization 'dXNlcm5hbWU6cGFzc3dvcmQ=' \
 # --baseurl 'https://cn.awmdm.com'
@@ -9,6 +11,7 @@
 
 # Written by Erik Gomez
 # Requires requests python library
+# Requires AirWatch 9.1 or higher and a macOS device enrolled in AirWatch.
 # http://docs.python-requests.org/en/master/
 
 from Foundation import NSBundle
