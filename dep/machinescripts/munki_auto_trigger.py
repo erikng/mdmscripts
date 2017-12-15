@@ -8,7 +8,7 @@
 # "donotwait" key in the json payload.
 
 # You _must_ pass preexec_fn=os.setpgrp in the subprocess, otherwise when
-# your original script exists, it will kill the munki run. This is because
+# your original script exits, it will kill the munki run. This is because
 # preexec_fn=os.setpgrp changes the SIGINT of this child process (this script)
 # would usually receive, thereby allowing it to continue to process even if the
 # original parent has sent a SIGINT to it's own child processes.
