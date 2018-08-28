@@ -25,7 +25,7 @@ def trigger_nag():
 
 
 def main():
-    dot_path = '/var/tmp/naggy/.trigger_nag'
+    dot_path = '/private/var/tmp/nudge/.trigger_nag'
     if trigger_nag():
         print 'Triggered nag - True'
     else:

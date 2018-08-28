@@ -41,7 +41,9 @@ class timerController(Foundation.NSObject):
 
 
 class mdmTimerController(Foundation.NSObject):
+    '''The MDM timer controller'''
     def checkMDMStatus_(self, timer_obj):
+        '''check mdm status in a timer'''
         print 'Checking mdm status'
         # Check the OS and run our dep checks based on OS version
         if os_version_major in ['10.13', '10.14']:
@@ -69,10 +71,12 @@ class mdmTimerController(Foundation.NSObject):
 
 
 def button_moreinfo():
+    '''Open browser more info button'''
     webbrowser.open_new_tab(moreinfourl)
 
 
 def button_manualenrollment():
+    '''Open browser manual enrollment button'''
     webbrowser.open_new_tab(manualenrollmenturl)
 
 
@@ -97,6 +101,7 @@ def button_understand():
 
 
 def check_mdm_legacy(mdm_profile_identifier):
+    '''Check MDM enrollment for older machines'''
     cmd = ['/usr/bin/profiles', '-C', '-o', 'stdout-xml']
     run = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output, err = run.communicate()
@@ -104,9 +109,9 @@ def check_mdm_legacy(mdm_profile_identifier):
         plist = plistlib.readPlistFromString(output)
     except:  # noqa
         plist = {'_computerlevel': []}
-    for x in plist['_computerlevel']:
+    for possible_plist in plist['_computerlevel']:
         try:
-            profile_uuid = x['ProfileIdentifier']
+            profile_uuid = possible_plist['ProfileIdentifier']
         except KeyError:
             profile_uuid = ''
         if profile_uuid == mdm_profile_identifier:
@@ -132,9 +137,9 @@ def check_mdm_high_sierra_legacy():
 def check_mdm_status_modern():
     '''Only for 10.13.4 and higher'''
     dep_enrolled = 'Enrolled via DEP: Yes'
-    dep_not_enrolled = 'Enrolled via DEP: No'
+    # dep_not_enrolled = 'Enrolled via DEP: No'
     uamdm_enrolled = 'MDM enrollment: Yes (User Approved)'
-    uamdm_not_enroll = 'MDM enrollment: Yes'
+    # uamdm_not_enroll = 'MDM enrollment: Yes'
     mdm_not_enrolled = 'MDM enrollment: No'
     cmd = ['/usr/bin/profiles', 'status', '-type', 'enrollment']
     run = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -149,26 +154,28 @@ def check_mdm_status_modern():
 
 
 def do_not_disturb_isset():
-    bundleID = 'com.apple.notificationcenterui'
-    doNotDisturb = CFPreferencesCopyAppValue('doNotDisturb', bundleID)
-    doNotDisturbByHost = CFPreferencesCopyValue('doNotDisturb', bundleID,
-                                                kCFPreferencesCurrentUser,
-                                                kCFPreferencesCurrentHost)
-    return bool(doNotDisturb or doNotDisturbByHost)
+    '''Check if DND is set'''
+    bundle_id = 'com.apple.notificationcenterui'
+    do_not_disturb = CFPreferencesCopyAppValue('doNotDisturb', bundle_id)
+    do_not_disturb_by_host = CFPreferencesCopyValue('doNotDisturb', bundle_id,
+                                                    kCFPreferencesCurrentUser,
+                                                    kCFPreferencesCurrentHost)
+    return bool(do_not_disturb or do_not_disturb_by_host)
 
 
 def do_not_disturb_set_value(dnd_on_or_off):
-    bundleID = 'com.apple.notificationcenterui'
-    CFPreferencesSetValue('doNotDisturb', dnd_on_or_off, bundleID,
+    '''Enable or Disable DND'''
+    bundle_id = 'com.apple.notificationcenterui'
+    CFPreferencesSetValue('doNotDisturb', dnd_on_or_off, bundle_id,
                           kCFPreferencesCurrentUser,
                           kCFPreferencesCurrentHost)
-    CFPreferencesSynchronize(bundleID,
+    CFPreferencesSynchronize(bundle_id,
                              kCFPreferencesCurrentUser,
                              kCFPreferencesCurrentHost)
-    CFPreferencesSetValue('doNotDisturb', dnd_on_or_off, bundleID,
+    CFPreferencesSetValue('doNotDisturb', dnd_on_or_off, bundle_id,
                           kCFPreferencesCurrentUser,
                           kCFPreferencesCurrentHost)
-    CFPreferencesAppSynchronize(bundleID)
+    CFPreferencesAppSynchronize(bundle_id)
 
 
 def get_console_username_info():
@@ -184,6 +191,7 @@ def get_os_version():
 
 
 def has_dep_activation_record(plist_path):
+    '''Check if we have a dep activation record'''
     try:
         plist = plistlib.readPlist(plist_path)
     except:  # noqa
@@ -209,6 +217,7 @@ def load_nudge_globals():
 
 
 def nudge_already_loaded():
+    '''Check if nudge is already loaded'''
     nudge_string = '/Library/Application Support/nudge/Resources/nudge'
     cmd = ['/bin/ps', '-o', 'pid', '-o', 'command']
     run = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -447,6 +456,9 @@ def main():
     # Check DND status
     original_dnd_status = do_not_disturb_isset()
 
+    if not os.path.exists('/private/var/tmp/nudge'):
+        os.makedirs('/private/var/tmp/nudge')
+
     # Because of a wonderful bug, when we check the dep activation record,
     # if the user hasn't enrolled, this will actually nag them, resulting in
     # two nags when our actual tool runs - work around this by turning on DND
@@ -457,13 +469,12 @@ def main():
 
     # Either we need to nag and show the nudge DEP UI or we need show manual
     # enrollment UI - this unfortunately requires root access
-    touch('/var/tmp/nudge/.check_dep_record')
-    while os.path.exists('/var/tmp/nudge/.check_dep_record'):
+    touch('/private/var/tmp/nudge/.check_dep_record')
+    while os.path.exists('/private/var/tmp/nudge/.check_dep_record'):
         print 'Waiting for DEP record check...'
         time.sleep(1)
 
     dep_plist = os.path.join(main_nudge_path, 'Resources/dep_record.plist')
-    testing = True
     if has_dep_activation_record(dep_plist):
         dep_capable = True
         print 'Device DEP capable - True'
@@ -475,8 +486,8 @@ def main():
         print 'Device DEP capable - False'
 
     # Trigger Nag event
-    touch('/var/tmp/nudge/.trigger_nag')
-    while os.path.exists('/var/tmp/nudge/.trigger_nag'):
+    touch('/private/var/tmp/nudge/.trigger_nag')
+    while os.path.exists('/private/var/tmp/nudge/.trigger_nag'):
         print 'Waiting for nag event...'
         time.sleep(1)
 
@@ -669,7 +680,8 @@ def main():
     nudge.hidden = True
 
     # If the device isn't dep capable, enable the manual enrollment button
-    if not dep_capable:
+    # Also if admin always wants the break glass option
+    if not dep_capable or opts.enableenrollmentbutton:
         nudge.views['button.manualenrollment'].setHidden_(False)
         nudge.views['field.manualenrollmenttext'].setHidden_(False)
         nudge.views['image.nagscreen'].setHidden_(True)
@@ -680,16 +692,15 @@ def main():
         nudge.views['field.depfailuresubtext'].setStringValue_(
             manualenroll_h2_text)
     else:
-        # If admin always wants the break glass option
-        if opts.enableenrollmentbutton:
-            nudge.views['button.manualenrollment'].setHidden_(False)
-            nudge.views['field.manualenrollmenttext'].setHidden_(False)
+        if date_diff_seconds <= 0:
+            nudge.views['field.manualenrollmenttext'].setHidden_(True)
+            nudge.views['image.nagscreen'].setHidden_(False)
             nudge.views['field.depfailuretext'].setHidden_(False)
             nudge.views['field.depfailuretext'].setStringValue_(
-                manualenroll_h1_text)
+                opts.depfailuretext)
             nudge.views['field.depfailuresubtext'].setHidden_(False)
             nudge.views['field.depfailuresubtext'].setStringValue_(
-                manualenroll_h2_text)
+                opts.depfailuresubtext)
 
     nudge.run()
 

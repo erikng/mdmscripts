@@ -24,9 +24,9 @@ def has_dep_activation_record(plist_path):
 
 
 def main():
-    dot_path = '/var/tmp/naggy/.check_dep_record'
-    main_naggy_path = '/Library/Application Support/naggy'
-    plist_path = os.path.join(main_naggy_path, 'Resources/dep_record.plist')
+    dot_path = '/private/var/tmp/nudge/.check_dep_record'
+    main_nudge_path = '/Library/Application Support/nudge'
+    plist_path = os.path.join(main_nudge_path, 'Resources/dep_record.plist')
     if has_dep_activation_record(plist_path):
         print 'Has DEP activation record - True'
     else:
