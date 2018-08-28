@@ -13,10 +13,10 @@ In order to create a properly working package, you will need to run the followin
 ## Screenshots
 
 ### DEP
-![Screenshot DEP](/images/ss_dep.png?raw=true)
+![Screenshot DEP](/dep/tools/naggyv2/images/ss_dep.png?raw=true)
 
 ### Manual
-![Screenshot Manual](/images/ss_manual.png?raw=true)
+![Screenshot Manual](/dep/tools/naggyv2/images/ss_manual.png?raw=true)
 
 ### UAMDM
-![Screenshot UAMDM](/images/ss_uamdm.png?raw=true)
+![Screenshot UAMDM](/dep/tools/naggyv2/images/ss_uamdm.png?raw=true)
