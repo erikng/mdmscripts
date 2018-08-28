@@ -15,7 +15,8 @@ from Foundation import (CFPreferencesAppSynchronize,
                         CFPreferencesSetValue,
                         CFPreferencesSynchronize,
                         kCFPreferencesCurrentHost,
-                        kCFPreferencesCurrentUser)
+                        kCFPreferencesCurrentUser,
+                        NSBundle)
 from SystemConfiguration import SCDynamicStoreCopyConsoleUser
 import Foundation
 import multiprocessing
@@ -188,6 +189,36 @@ def get_console_username_info():
 def get_os_version():
     """Return OS version."""
     return platform.mac_ver()[0]
+
+
+def get_serial():
+    '''Get system serial number'''
+    # Credit to Michael Lynn
+    iokit_bundle = NSBundle.bundleWithIdentifier_("com.apple.framework.IOKit")
+    functions = [
+        ("IOServiceGetMatchingService", b"II@"),
+        ("IOServiceMatching", b"@*"),
+        ("IORegistryEntryCreateCFProperty", b"@I@@I")
+    ]
+    objc.loadBundleFunctions(iokit_bundle, globals(), functions)
+
+    kio_master_port_default = 0
+    kio_platform_serial_number_key = 'IOPlatformSerialNumber'
+    kcf_allocator_default = None
+
+    # pylint: disable=undefined-variable
+    platform_expert = IOServiceGetMatchingService(
+        kio_master_port_default,
+        IOServiceMatching("IOPlatformExpertDevice")
+    )
+    serial = IORegistryEntryCreateCFProperty(
+        platform_expert,
+        kio_platform_serial_number_key,
+        kcf_allocator_default,
+        0
+    )
+    # pylint: enable=undefined-variable
+    return serial
 
 
 def has_dep_activation_record(plist_path):
@@ -542,10 +573,9 @@ def main():
     nudge.views['field.depfailuresubtext'].setStringValue_(
         opts.depfailuresubtext)
 
-    # Dynamically set username and computername
+    # Dynamically set username and serialnumber
     nudge.views['field.username'].setStringValue_(str(user_name))
-    nudge.views['field.computername'].setStringValue_(str(
-        platform.node().split('.')[0]))
+    nudge.views['field.serialnumber'].setStringValue_(str(get_serial()))
     nudge.views['field.mdmenrolled'].setStringValue_('No')
     if opts.cutoffdate:
         todays_date = datetime.utcnow()
