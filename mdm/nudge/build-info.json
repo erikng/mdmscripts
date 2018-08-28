@@ -1,10 +1,10 @@
 {
     "distribution_style": true,
-    "identifier": "com.erikng.naggy",
+    "identifier": "com.erikng.nudge",
     "install_location": "/",
-    "name": "Naggy-${version}.pkg",
+    "name": "nudge-${version}.pkg",
     "ownership": "recommended",
     "postinstall_action": "none",
     "suppress_bundle_relocation": true,
-    "version": "2.0"
+    "version": "1.0"
 }

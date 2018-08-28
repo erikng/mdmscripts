@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-'''Naggy - python wrapper for UAMDM/DEP enrollment and annoying the users to
+'''nudge - python wrapper for UAMDM/DEP enrollment and annoying the users to
 actually enroll.'''
 from nibbler import *
 
@@ -37,7 +37,7 @@ class timerController(Foundation.NSObject):
         # Move the main window to the front
         # Nibbler objects have a .win property (...should probably be .window)
         # that contains a reference to the first NSWindow it finds
-        naggy.win.makeKeyAndOrderFront_(None)
+        nudge.win.makeKeyAndOrderFront_(None)
 
 
 class mdmTimerController(Foundation.NSObject):
@@ -48,24 +48,24 @@ class mdmTimerController(Foundation.NSObject):
             if LooseVersion(os_version) >= LooseVersion('10.13.4'):
                 if check_mdm_status_modern()[2]:
                     print 'Validated mdm enrollment'
-                    naggy.quit()
+                    nudge.quit()
                 else:
                     # Check if MDM is installed.
                     if check_mdm_status_modern()[1]:
                         print 'UAMDM not set, updating UI for user'
-                        update_naggy_ui_uamdm(uamdmparagraph1, uamdmparagraph2,
+                        update_nudge_ui_uamdm(uamdmparagraph1, uamdmparagraph2,
                                               uamdmparagraph3)
             # 10.13.0 -> 10.13.3 machines should get here, so we exit here
             else:
                 if check_mdm_high_sierra_legacy():
                     print 'Validated mdm enrollment'
-                    naggy.quit()
+                    nudge.quit()
         else:
             # Anything lower than 10.13, we just check if the profile is
             # installed
             if check_mdm_legacy(mdm_profile_identifier):
                 print 'Validated mdm enrollment'
-                naggy.quit()
+                nudge.quit()
 
 
 def button_moreinfo():
@@ -77,8 +77,8 @@ def button_manualenrollment():
 
 
 def button_ok():
-    '''Quit out of naggy if user hits the ok button'''
-    naggy.quit()
+    '''Quit out of nudge if user hits the ok button'''
+    nudge.quit()
 
 
 def button_sysprefs():
@@ -91,9 +91,9 @@ def button_sysprefs():
 def button_understand():
     '''Add an extra button to force the user to read the dialog, prior to being
     able to exit the UI.'''
-    naggy.views['button.understand'].setHidden_(True)
-    naggy.views['button.ok'].setHidden_(False)
-    naggy.views['button.ok'].setEnabled_(True)
+    nudge.views['button.understand'].setHidden_(True)
+    nudge.views['button.ok'].setHidden_(False)
+    nudge.views['button.ok'].setEnabled_(True)
 
 
 def check_mdm_legacy(mdm_profile_identifier):
@@ -194,29 +194,29 @@ def has_dep_activation_record(plist_path):
         return True
 
 
-def load_naggy_globals():
-    '''Try to figure out the path of naggy.nib and load it.'''
+def load_nudge_globals():
+    '''Try to figure out the path of nudge.nib and load it.'''
     try:
-        # Figure out the local path of naggy
-        global naggy_path
-        naggy_path = os.path.dirname(os.path.realpath(__file__))
-        # Setup our global naggy variable to inject into our nib file
-        global naggy
-        naggy = Nibbler(os.path.join(naggy_path, 'naggy.nib'))
+        # Figure out the local path of nudge
+        global nudge_path
+        nudge_path = os.path.dirname(os.path.realpath(__file__))
+        # Setup our global nudge variable to inject into our nib file
+        global nudge
+        nudge = Nibbler(os.path.join(nudge_path, 'nudge.nib'))
     except IOError:
-        print 'Unable to load naggy nib file!'
+        print 'Unable to load nudge nib file!'
         exit(20)
 
 
-def naggy_already_loaded():
-    naggy_string = '/Library/Application Support/naggy/Resources/naggy'
+def nudge_already_loaded():
+    nudge_string = '/Library/Application Support/nudge/Resources/nudge'
     cmd = ['/bin/ps', '-o', 'pid', '-o', 'command']
     run = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output, err = run.communicate()
     status = output.split('\n')
     current_pid = str(os.getpid())
     for line in status:
-        if naggy_string in line:
+        if nudge_string in line:
             if current_pid in line:
                 pass
             else:
@@ -236,16 +236,16 @@ def touch(path):
         return None
 
 
-def update_naggy_ui_uamdm(uamdm_p1, uamdm_p2, uamdm_p3):
-    naggy.views['field.paragraph1'].setStringValue_(uamdm_p1)
-    naggy.views['field.paragraph2'].setStringValue_(uamdm_p2)
-    naggy.views['field.paragraph3'].setStringValue_(uamdm_p3)
-    naggy.views['image.nagscreen'].setImage_(uamdm_ss_nsimage)
-    naggy.views['button.sysprefs'].setHidden_(False)
-    naggy.views['field.depfailuretext'].setHidden_(False)
-    naggy.views['field.depfailuresubtext'].setHidden_(False)
-    naggy.views['field.depfailuretext'].setStringValue_(sysprefs_h1_text)
-    naggy.views['field.depfailuresubtext'].setStringValue_(sysprefs_h2_text)
+def update_nudge_ui_uamdm(uamdm_p1, uamdm_p2, uamdm_p3):
+    nudge.views['field.paragraph1'].setStringValue_(uamdm_p1)
+    nudge.views['field.paragraph2'].setStringValue_(uamdm_p2)
+    nudge.views['field.paragraph3'].setStringValue_(uamdm_p3)
+    nudge.views['image.nagscreen'].setImage_(uamdm_ss_nsimage)
+    nudge.views['button.sysprefs'].setHidden_(False)
+    nudge.views['field.depfailuretext'].setHidden_(False)
+    nudge.views['field.depfailuresubtext'].setHidden_(False)
+    nudge.views['field.depfailuretext'].setStringValue_(sysprefs_h1_text)
+    nudge.views['field.depfailuresubtext'].setStringValue_(sysprefs_h2_text)
 
 
 def main():
@@ -293,7 +293,7 @@ def main():
                  default='nag_ss.png',
                  help=('Optional: Path to nag screenshot.'))
     o.add_option('--notimer', default=False,
-                 help=('Optional: Do not use naggy timer functionality.'),
+                 help=('Optional: Do not use nudge timer functionality.'),
                  action='store_true')
     o.add_option('--paragraph1',
                  default='Enrollment into MDM is required to ensure that IT '
@@ -328,19 +328,19 @@ def main():
                  help=('Optional: Time in minutes between UI warnings.'))
     o.add_option('--timerday1',
                  default=600,
-                 help=('Optional: Time in seconds for 24-hour naggy timer.'))
+                 help=('Optional: Time in seconds for 24-hour nudge timer.'))
     o.add_option('--timerday3',
                  default=7200,
-                 help=('Optional: Time in seconds for 72-hour naggy timer.'))
+                 help=('Optional: Time in seconds for 72-hour nudge timer.'))
     o.add_option('--timerelapsed',
                  default=10,
-                 help=('Optional: Time in seconds for elapsed naggy timer.'))
+                 help=('Optional: Time in seconds for elapsed nudge timer.'))
     o.add_option('--timerfinal',
                  default=60,
-                 help=('Optional: Time in seconds for 1-hour naggy timer.'))
+                 help=('Optional: Time in seconds for 1-hour nudge timer.'))
     o.add_option('--timerinital',
                  default=14400,
-                 help=('Optional: Time in seconds for initial naggy timer.'))
+                 help=('Optional: Time in seconds for initial nudge timer.'))
     o.add_option('--timermdm',
                  default=5,
                  help=('Optional: Time in seconds for mdm check timer.'))
@@ -372,7 +372,7 @@ def main():
     os_version = get_os_version()
     global os_version_major
     os_version_major = str('.'.join(get_os_version().split('.')[:2]))
-    main_naggy_path = '/Library/Application Support/naggy'
+    main_nudge_path = '/Library/Application Support/nudge'
     mdm_enrolled = False
     uamdm_enrolled = False
 
@@ -406,14 +406,14 @@ def main():
         if mdm_enrolled:
             exit(0)
 
-    # If we get here, device is not MDM enrolled - check if naggy is already
+    # If we get here, device is not MDM enrolled - check if nudge is already
     # running
-    if naggy_already_loaded():
-        print 'Naggy already loaded!'
+    if nudge_already_loaded():
+        print 'nudge already loaded!'
         exit(0)
 
-    # Attempt to load our naggy globals
-    load_naggy_globals()
+    # Attempt to load our nudge globals
+    load_nudge_globals()
     global moreinfourl
     moreinfourl = opts.moreinfourl
     global manualenrollmenturl
@@ -455,14 +455,14 @@ def main():
         do_not_disturb_set_value(True)
         print 'Temporarily enabling DND for DEP activation record check'
 
-    # Either we need to nag and show the naggy DEP UI or we need show manual
+    # Either we need to nag and show the nudge DEP UI or we need show manual
     # enrollment UI - this unfortunately requires root access
-    touch('/var/tmp/naggy/.check_dep_record')
-    while os.path.exists('/var/tmp/naggy/.check_dep_record'):
+    touch('/var/tmp/nudge/.check_dep_record')
+    while os.path.exists('/var/tmp/nudge/.check_dep_record'):
         print 'Waiting for DEP record check...'
         time.sleep(1)
 
-    dep_plist = os.path.join(main_naggy_path, 'Resources/dep_record.plist')
+    dep_plist = os.path.join(main_nudge_path, 'Resources/dep_record.plist')
     testing = True
     if has_dep_activation_record(dep_plist):
         dep_capable = True
@@ -475,8 +475,8 @@ def main():
         print 'Device DEP capable - False'
 
     # Trigger Nag event
-    touch('/var/tmp/naggy/.trigger_nag')
-    while os.path.exists('/var/tmp/naggy/.trigger_nag'):
+    touch('/var/tmp/nudge/.trigger_nag')
+    while os.path.exists('/var/tmp/nudge/.trigger_nag'):
         print 'Waiting for nag event...'
         time.sleep(1)
 
@@ -489,11 +489,11 @@ def main():
         do_not_disturb_set_value(False)
 
     # Use the paths defined, or default to pngs in the same local path of
-    # naggy
+    # nudge
     for index, path in enumerate([opts.logopath, opts.nagsspath, opts.uasspath]):
         if path == 'company_logo.png' or path == 'nag_ss.png' or path == 'uamdm_ss.png':
             local_png_path = os.path.join(
-                naggy_path, path).replace(' ', '%20')
+                nudge_path, path).replace(' ', '%20')
         else:
             local_png_path = os.path.join(path).replace(' ', '%20')
         foundation_nsurl_path = Foundation.NSURL.URLWithString_(
@@ -503,39 +503,39 @@ def main():
         foundation_nsimage = NSImage.alloc().initWithData_(
             foundation_nsdata)
         if index == 0:
-            naggy.views['image.companylogo'].setImage_(foundation_nsimage)
+            nudge.views['image.companylogo'].setImage_(foundation_nsimage)
         elif index == 1:
-            naggy.views['image.nagscreen'].setImage_(foundation_nsimage)
+            nudge.views['image.nagscreen'].setImage_(foundation_nsimage)
         elif index == 2:
             global uamdm_ss_nsimage
             uamdm_ss_nsimage = foundation_nsimage
 
     # Attach all the nib buttons to functions
-    naggy.attach(button_manualenrollment, 'button.manualenrollment')
-    naggy.attach(button_moreinfo, 'button.moreinfo')
-    naggy.attach(button_ok, 'button.ok')
-    naggy.attach(button_understand, 'button.understand')
-    naggy.attach(button_sysprefs, 'button.sysprefs')
+    nudge.attach(button_manualenrollment, 'button.manualenrollment')
+    nudge.attach(button_moreinfo, 'button.moreinfo')
+    nudge.attach(button_ok, 'button.ok')
+    nudge.attach(button_understand, 'button.understand')
+    nudge.attach(button_sysprefs, 'button.sysprefs')
 
     # Setup the UI fields
-    naggy.views['field.titletext'].setStringValue_(opts.titletext)
-    naggy.views['field.subtitletext'].setStringValue_(opts.subtitletext)
-    naggy.views['field.duedatetext'].setStringValue_(opts.duedatetext)
-    naggy.views['field.paragraph1'].setStringValue_(opts.paragraph1)
-    naggy.views['field.paragraph2'].setStringValue_(opts.paragraph2)
-    naggy.views['field.paragraph3'].setStringValue_(opts.paragraph3)
-    naggy.views['field.manualenrollmenttext'].setStringValue_(
+    nudge.views['field.titletext'].setStringValue_(opts.titletext)
+    nudge.views['field.subtitletext'].setStringValue_(opts.subtitletext)
+    nudge.views['field.duedatetext'].setStringValue_(opts.duedatetext)
+    nudge.views['field.paragraph1'].setStringValue_(opts.paragraph1)
+    nudge.views['field.paragraph2'].setStringValue_(opts.paragraph2)
+    nudge.views['field.paragraph3'].setStringValue_(opts.paragraph3)
+    nudge.views['field.manualenrollmenttext'].setStringValue_(
         opts.manualenrollmenttext)
-    naggy.views['field.depfailuretext'].setStringValue_(
+    nudge.views['field.depfailuretext'].setStringValue_(
         opts.depfailuretext)
-    naggy.views['field.depfailuresubtext'].setStringValue_(
+    nudge.views['field.depfailuresubtext'].setStringValue_(
         opts.depfailuresubtext)
 
     # Dynamically set username and computername
-    naggy.views['field.username'].setStringValue_(str(user_name))
-    naggy.views['field.computername'].setStringValue_(str(
+    nudge.views['field.username'].setStringValue_(str(user_name))
+    nudge.views['field.computername'].setStringValue_(str(
         platform.node().split('.')[0]))
-    naggy.views['field.mdmenrolled'].setStringValue_('No')
+    nudge.views['field.mdmenrolled'].setStringValue_('No')
     if opts.cutoffdate:
         todays_date = datetime.utcnow()
         cutoff_date = datetime.strptime(opts.cutoffdate, '%Y-%m-%d-%H:%M')
@@ -543,55 +543,55 @@ def main():
         date_diff_days = int(round(date_diff_seconds / 86400))
 
         if date_diff_seconds >= 0:
-            naggy.views['field.daysremaining'].setStringValue_(
+            nudge.views['field.daysremaining'].setStringValue_(
                 date_diff_days)
         else:
-            naggy.views['field.daysremaining'].setStringValue_(
+            nudge.views['field.daysremaining'].setStringValue_(
                 'Past date!')
 
         cut_off_warn = bool(date_diff_seconds < int(
             opts.cutoffdatewarning) * 86400)
 
         # Setup our timer controller
-        naggy.timer_controller = timerController.alloc().init()
+        nudge.timer_controller = timerController.alloc().init()
 
         if date_diff_seconds <= 0:
             # If the cutoff date is over, get stupidly aggressive
 
             # Disable all buttons so the user cannot exit out of the
             # application, and have the manualenrollment button appear
-            naggy.views['button.ok'].setHidden_(True)
-            naggy.views['button.understand'].setHidden_(True)
+            nudge.views['button.ok'].setHidden_(True)
+            nudge.views['button.understand'].setHidden_(True)
 
             # Show the manual enrollment UI for emergency purposes
-            naggy.views['button.manualenrollment'].setHidden_(False)
-            naggy.views['field.manualenrollmenttext'].setHidden_(False)
-            naggy.views['image.nagscreen'].setHidden_(True)
-            naggy.views['field.depfailuretext'].setHidden_(False)
-            naggy.views['field.depfailuretext'].setStringValue_(
+            nudge.views['button.manualenrollment'].setHidden_(False)
+            nudge.views['field.manualenrollmenttext'].setHidden_(False)
+            nudge.views['image.nagscreen'].setHidden_(True)
+            nudge.views['field.depfailuretext'].setHidden_(False)
+            nudge.views['field.depfailuretext'].setStringValue_(
                 manualenroll_h1_text)
-            naggy.views['field.depfailuresubtext'].setHidden_(False)
-            naggy.views['field.depfailuresubtext'].setStringValue_(
+            nudge.views['field.depfailuresubtext'].setHidden_(False)
+            nudge.views['field.depfailuresubtext'].setStringValue_(
                 manualenroll_h2_text)
 
-            # Bring back naggy to the foreground, every 10 seconds
+            # Bring back nudge to the foreground, every 10 seconds
             timer = float(opts.timerelapsed)
-            naggy.timer = Foundation.NSTimer.scheduledTimerWithTimeInterval_target_selector_userInfo_repeats_(  # noqa
-                timer, naggy.timer_controller, 'activateWindow:', None,
+            nudge.timer = Foundation.NSTimer.scheduledTimerWithTimeInterval_target_selector_userInfo_repeats_(  # noqa
+                timer, nudge.timer_controller, 'activateWindow:', None,
                 True)
         elif date_diff_seconds <= 3600:
             # If the cutoff date is within one hour, get very agressive
 
             # Disable all buttons so the user cannot exit out of the
             # application
-            naggy.views['button.ok'].setHidden_(True)
-            naggy.views['button.understand'].setHidden_(True)
+            nudge.views['button.ok'].setHidden_(True)
+            nudge.views['button.understand'].setHidden_(True)
 
-            # Bring back naggy to the foreground, every 60 seconds
+            # Bring back nudge to the foreground, every 60 seconds
             # (1 minute)
             timer = float(opts.timerfinal)
-            naggy.timer = Foundation.NSTimer.scheduledTimerWithTimeInterval_target_selector_userInfo_repeats_(  # noqa
-                timer, naggy.timer_controller, 'activateWindow:', None,
+            nudge.timer = Foundation.NSTimer.scheduledTimerWithTimeInterval_target_selector_userInfo_repeats_(  # noqa
+                timer, nudge.timer_controller, 'activateWindow:', None,
                 True)
         elif date_diff_seconds <= 86400:
             # If the cutoff date is within 86,400 seconds (24 hours), start
@@ -599,14 +599,14 @@ def main():
 
             # Disable the ok button and require users to press understand
             # button first
-            naggy.views['button.ok'].setHidden_(True)
+            nudge.views['button.ok'].setHidden_(True)
 
-            # If the user doesn't close out of naggy, we want it to
-            # reappear - bring back naggy to the foreground, every
+            # If the user doesn't close out of nudge, we want it to
+            # reappear - bring back nudge to the foreground, every
             # 600 seconds (10 minutes)
             timer = float(opts.timerday1)
-            naggy.timer = Foundation.NSTimer.scheduledTimerWithTimeInterval_target_selector_userInfo_repeats_(  # noqa
-                timer, naggy.timer_controller, 'activateWindow:', None,
+            nudge.timer = Foundation.NSTimer.scheduledTimerWithTimeInterval_target_selector_userInfo_repeats_(  # noqa
+                timer, nudge.timer_controller, 'activateWindow:', None,
                 True)
         elif cut_off_warn:
             # If the cutoff date is within 259,200 seconds (72 hours) or
@@ -614,84 +614,84 @@ def main():
 
             # Disable the ok button and require users to press understand
             # button first
-            naggy.views['button.ok'].setHidden_(True)
+            nudge.views['button.ok'].setHidden_(True)
 
-            # If the user doesn't close out of naggy, we want it to
-            # reappear - bring back naggy to the foreground, every
+            # If the user doesn't close out of nudge, we want it to
+            # reappear - bring back nudge to the foreground, every
             # 7,200 seconds (2 hours)
             timer = float(opts.timerday3)
-            naggy.timer = Foundation.NSTimer.scheduledTimerWithTimeInterval_target_selector_userInfo_repeats_(  # noqa
-                timer, naggy.timer_controller, 'activateWindow:', None,
+            nudge.timer = Foundation.NSTimer.scheduledTimerWithTimeInterval_target_selector_userInfo_repeats_(  # noqa
+                timer, nudge.timer_controller, 'activateWindow:', None,
                 True)
         else:
             # If the cutoff date is over 259,200 seconds (72 hours),
             # don't be that aggressive
 
-            # Only require the ok button to exit out of naggy
-            naggy.views['button.ok'].setHidden_(False)
-            naggy.views['button.understand'].setHidden_(True)
+            # Only require the ok button to exit out of nudge
+            nudge.views['button.ok'].setHidden_(False)
+            nudge.views['button.understand'].setHidden_(True)
 
-            # If the user doesn't close out of naggy, we want it to
-            # reappear - bring back naggy to the foreground, every
+            # If the user doesn't close out of nudge, we want it to
+            # reappear - bring back nudge to the foreground, every
             # 14,400 seconds (4 hours)
             timer = float(opts.timerinital)
-            naggy.timer = Foundation.NSTimer.scheduledTimerWithTimeInterval_target_selector_userInfo_repeats_(  # noqa
-                timer, naggy.timer_controller, 'activateWindow:', None,
+            nudge.timer = Foundation.NSTimer.scheduledTimerWithTimeInterval_target_selector_userInfo_repeats_(  # noqa
+                timer, nudge.timer_controller, 'activateWindow:', None,
                 True)
     else:
         # If you elect not to use a cutoff date, then the UI will only
         # appear one time per run, and only use the ok button
 
         # Hide the fields used for the cutoff date
-        naggy.views['field.daysremainingtext'].setHidden_(True)
-        naggy.views['field.daysremaining'].setHidden_(True)
+        nudge.views['field.daysremainingtext'].setHidden_(True)
+        nudge.views['field.daysremaining'].setHidden_(True)
 
-        # Only require the ok button to exit out of naggy
-        naggy.views['button.ok'].setHidden_(False)
-        naggy.views['button.understand'].setHidden_(True)
+        # Only require the ok button to exit out of nudge
+        nudge.views['button.ok'].setHidden_(False)
+        nudge.views['button.understand'].setHidden_(True)
 
     # Use cut off dates, but don't use the timer functionality
     if opts.notimer:
-        naggy.timer.invalidate()
+        nudge.timer.invalidate()
         print 'Timer invalidated!'
     else:
         print 'Timer is set to %s' % str(timer)
 
     # Setup our mdm timer controller
-    naggy.mdm_timer_controller = mdmTimerController.alloc().init()
+    nudge.mdm_timer_controller = mdmTimerController.alloc().init()
     mdm_timer = float(opts.timermdm)
     print 'MDM Timer is set to %s' % str(mdm_timer)
-    naggy.mdm_timer = Foundation.NSTimer.scheduledTimerWithTimeInterval_target_selector_userInfo_repeats_(  # noqa
-        mdm_timer, naggy.mdm_timer_controller, 'checkMDMStatus:', None,
+    nudge.mdm_timer = Foundation.NSTimer.scheduledTimerWithTimeInterval_target_selector_userInfo_repeats_(  # noqa
+        mdm_timer, nudge.mdm_timer_controller, 'checkMDMStatus:', None,
         True)
 
     # Set up our window controller and delegate
-    naggy.hidden = True
+    nudge.hidden = True
 
     # If the device isn't dep capable, enable the manual enrollment button
     if not dep_capable:
-        naggy.views['button.manualenrollment'].setHidden_(False)
-        naggy.views['field.manualenrollmenttext'].setHidden_(False)
-        naggy.views['image.nagscreen'].setHidden_(True)
-        naggy.views['field.depfailuretext'].setHidden_(False)
-        naggy.views['field.depfailuretext'].setStringValue_(
+        nudge.views['button.manualenrollment'].setHidden_(False)
+        nudge.views['field.manualenrollmenttext'].setHidden_(False)
+        nudge.views['image.nagscreen'].setHidden_(True)
+        nudge.views['field.depfailuretext'].setHidden_(False)
+        nudge.views['field.depfailuretext'].setStringValue_(
             manualenroll_h1_text)
-        naggy.views['field.depfailuresubtext'].setHidden_(False)
-        naggy.views['field.depfailuresubtext'].setStringValue_(
+        nudge.views['field.depfailuresubtext'].setHidden_(False)
+        nudge.views['field.depfailuresubtext'].setStringValue_(
             manualenroll_h2_text)
     else:
         # If admin always wants the break glass option
         if opts.enableenrollmentbutton:
-            naggy.views['button.manualenrollment'].setHidden_(False)
-            naggy.views['field.manualenrollmenttext'].setHidden_(False)
-            naggy.views['field.depfailuretext'].setHidden_(False)
-            naggy.views['field.depfailuretext'].setStringValue_(
+            nudge.views['button.manualenrollment'].setHidden_(False)
+            nudge.views['field.manualenrollmenttext'].setHidden_(False)
+            nudge.views['field.depfailuretext'].setHidden_(False)
+            nudge.views['field.depfailuretext'].setStringValue_(
                 manualenroll_h1_text)
-            naggy.views['field.depfailuresubtext'].setHidden_(False)
-            naggy.views['field.depfailuresubtext'].setStringValue_(
+            nudge.views['field.depfailuresubtext'].setHidden_(False)
+            nudge.views['field.depfailuresubtext'].setStringValue_(
                 manualenroll_h2_text)
 
-    naggy.run()
+    nudge.run()
 
 
 if __name__ == '__main__':

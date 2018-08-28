@@ -3,16 +3,16 @@
 <plist version="1.0">
 <dict>
 	<key>Label</key>
-	<string>com.erikng.naggy.check_dep_record</string>
+	<string>com.erikng.nudge.trigger_nag</string>
 	<key>ProgramArguments</key>
 	<array>
-		<string>/Library/Application Support/naggy/Resources/naggy_check_dep_record</string>
+		<string>/Library/Application Support/nudge/Resources/nudge_trigger_nag</string>
 	</array>
 	<key>KeepAlive</key>
   <dict>
      <key>PathState</key>
      <dict>
-       <key>/var/tmp/naggy/.check_dep_record</key>
+       <key>/var/tmp/nudge/.trigger_nag</key>
        <true/>
      </dict>
   </dict>

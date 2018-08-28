@@ -37,15 +37,15 @@ def launchctl(*arg):
 
 def main():
     # Make the Log path 777 to cheat - do this before loading LaunchAgent
-    naggy_log_path = '/Library/Application Support/naggy/Logs'
-    os.chmod(naggy_log_path, 0o777)
+    nudge_log_path = '/Library/Application Support/nudge/Logs'
+    os.chmod(nudge_log_path, 0o777)
 
     lapath = os.path.join('/Library', 'LaunchAgents',
-                          'com.erikng.naggy.plist')
+                          'com.erikng.nudge.plist')
     ldpath1 = os.path.join('/Library', 'LaunchDaemons',
-                           'com.erikng.naggy.check_dep_record.plist')
+                           'com.erikng.nudge.check_dep_record.plist')
     ldpath2 = os.path.join('/Library', 'LaunchDaemons',
-                           'com.erikng.naggy.trigger_nag.plist')
+                           'com.erikng.nudge.trigger_nag.plist')
     # Fail the install if the admin forgets to change their paths and they
     # don't exist
     for file in [lapath, ldpath1, ldpath2]:

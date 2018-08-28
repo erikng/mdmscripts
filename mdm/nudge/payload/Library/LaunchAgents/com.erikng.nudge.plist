@@ -3,10 +3,10 @@
 <plist version="1.0">
 <dict>
 	<key>Label</key>
-	<string>com.erikng.naggy</string>
+	<string>com.erikng.nudge</string>
 	<key>ProgramArguments</key>
 	<array>
-		<string>/Library/Application Support/naggy/Resources/naggy</string>
+		<string>/Library/Application Support/nudge/Resources/nudge</string>
 		<!-- Cutoff Date (Strings) -->
 		<!--<string>--cutoffdate</string> -->
 		<!--<string>2018-12-31-17:00</string> -->
@@ -84,9 +84,9 @@
 	<key>RunAtLoad</key>
 	<true/>
 	<key>StandardOutPath</key>
-	<string>/Library/Application Support/naggy/Logs/naggy.log</string>
+	<string>/Library/Application Support/nudge/Logs/nudge.log</string>
 	<key>StandardOutPath</key>
-	<string>/Library/Application Support/naggy/Logs/naggy.log</string>
+	<string>/Library/Application Support/nudge/Logs/nudge.log</string>
 	<key>StartCalendarInterval</key>
 	<dict>
 		<key>Minute</key>
