@@ -107,9 +107,11 @@ def main():
             'CommandXml':
             '<dict>'
                 '<key>RequestType</key>'
-                '<string>InstallApplication</string>'
+                '<string>InstallEnterpriseApplication</string>'
                 '<key>ManifestURL</key>'
                 '<string>' + manifesturl + '</string>'
+                '<key>PinningRevocationCheckRequired</key>'
+                '<false/>'
             '</dict>'
         }
     )
